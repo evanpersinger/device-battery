@@ -12,6 +12,12 @@ export interface Device {
   updated_at: string | null;
   /** Relative age like "12m ago", already prefixed "stale," when old. Empty if unknown. */
   age: string;
+  /**
+   * null means unknown, not "not plugged in". Only the Mac reports this.
+   * macOS exposes no charging field for Bluetooth devices, so AirPods are
+   * always null and must not be rendered as unplugged.
+   */
+  plugged_in: boolean | null;
   error: string | null;
 }
 

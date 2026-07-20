@@ -74,6 +74,15 @@ reason. Set the `PYTHON` env var to override it.
 when they are paired to the Mac. Apple exposes no API for this on either platform, and
 iOS Shortcuts has no action to read it. There is no workaround, this is a hard limit.
 
+**Charging status for anything but the Mac.** `system_profiler` returns twelve fields for
+a connected AirPod (address, battery levels, firmware, serials, RSSI, services, vendor)
+and not one of them is a charging flag. So `plugged_in` is `true`/`false` for the Mac and
+`null` everywhere else.
+
+`null` means unknown, and the UI shows nothing for it. Do not "improve" this by rendering
+null as unplugged, that would state a fact nobody has. A bud sitting in the case charging
+does not report at all, it simply vanishes from the list.
+
 The AirPods case level only appears while the case is open and connected.
 
 ## Config

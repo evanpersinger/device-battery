@@ -61,6 +61,10 @@ class Device:
     source: str = ""
     updated_at: datetime | None = None
     error: str | None = None
+    # True or False only when the source actually reports it. None means
+    # unknown, which is the honest answer for every Bluetooth device: macOS
+    # exposes no charging field for them at all.
+    plugged_in: bool | None = None
 
 
 @dataclass
@@ -132,7 +136,26 @@ def read_mac_battery() -> Device:
         percent=percent,
         status=mac_status(output),
         source="pmset",
+        plugged_in=mac_plugged_in(output),
     )
+
+
+def mac_plugged_in(output: str) -> bool | None:
+    """Read the power source from pmset, or None if it says something new.
+
+    pmset opens with "Now drawing from 'AC Power'" or "'Battery Power'". Anything
+    else (a UPS, say) is reported as unknown rather than guessed at.
+    """
+    match = re.search(r"Now drawing from '([^']+)'", output)
+    if match is None:
+        return None
+
+    source = match.group(1)
+    if source == "AC Power":
+        return True
+    if source == "Battery Power":
+        return False
+    return None
 
 
 def mac_status(output: str) -> str:
@@ -248,7 +271,21 @@ def pushed_device(path: Path) -> Device:
         percent=percent,
         source="icloud",
         updated_at=parse_timestamp(data.get("updated_at")),
+        plugged_in=parse_bool(data.get("plugged_in")),
     )
+
+
+def parse_bool(raw: object) -> bool | None:
+    """Read a pushed boolean, tolerating the strings Shortcuts tends to send."""
+    if isinstance(raw, bool):
+        return raw
+    if isinstance(raw, str):
+        lowered = raw.strip().lower()
+        if lowered in {"true", "yes", "1"}:
+            return True
+        if lowered in {"false", "no", "0"}:
+            return False
+    return None
 
 
 def parse_timestamp(raw: str | None) -> datetime | None:
@@ -375,6 +412,7 @@ def to_json(devices: list[Device]) -> str:
             "source": device.source,
             "updated_at": device.updated_at.isoformat() if device.updated_at else None,
             "age": describe_age(device.updated_at),
+            "plugged_in": device.plugged_in,
             "error": device.error,
         }
         for device in devices

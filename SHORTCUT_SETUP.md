@@ -42,6 +42,11 @@ only fires when crossing a threshold, so it can leave the reading hours stale.
    {"name": "iPhone", "percent": [Battery Level], "updated_at": "[Formatted Date]"}
    ```
 
+   An optional `"plugged_in": true` or `false` is read if you can produce it. Shortcuts
+   has no direct "is charging" action, so leave it out unless you find a way. Omitting
+   it means unknown, which displays as nothing. That is correct, and better than
+   claiming the phone is unplugged when nobody actually knows.
+
 4. **Save File**
    - Destination: iCloud Drive, folder `device-battery`, filename `iphone.json`
    - Turn **off** "Ask Where to Save"

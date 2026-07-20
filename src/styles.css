@@ -97,9 +97,17 @@ body {
 }
 
 .row-percent {
+  display: flex;
+  align-items: center;
+  gap: 3px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
+}
+
+.bolt {
+  width: 11px;
+  height: 11px;
 }
 
 .row-percent-missing {
