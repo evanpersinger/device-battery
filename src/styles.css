@@ -50,6 +50,12 @@ body {
   margin-top: 14px;
 }
 
+/* A device that stopped reporting. Dimmed rather than removed, so you can see
+   it is still yours and just has no reading right now. */
+.row-missing {
+  opacity: 0.45;
+}
+
 .row-head {
   display: flex;
   align-items: baseline;

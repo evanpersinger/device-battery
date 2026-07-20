@@ -92,14 +92,23 @@ new Bluetooth device appears without touching this file.
 ```json
 {
   "hide": ["Magic Keyboard"],
+  "expect": ["iPhone"],
   "rename": {
     "Evan’s AirPods L": "AirPods L"
   }
 }
 ```
 
-The names on the left are the raw ones macOS reports. Run `python3 battery.py --json` to
-see them exactly as detected, including the curly apostrophe Apple uses.
+`expect` lists devices that should always have a row. A source that stops reporting drops
+the device from its output entirely, so without this an unplugged AirPod does not gray
+out, it disappears along with its name. Expected devices that did not report get a dimmed
+row reading `not reporting`.
+
+Names in `expect` are the ones you see, after `rename` has been applied. Names in `hide`
+and the left side of `rename` are the raw ones macOS reports.
+
+Run `python3 battery.py --json` to see names exactly as detected, including the curly
+apostrophe Apple uses.
 
 If the file is missing or malformed, everything shows with its raw name.
 

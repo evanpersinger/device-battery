@@ -73,6 +73,10 @@ class Config:
 
     hide: list[str] = field(default_factory=list)
     rename: dict[str, str] = field(default_factory=dict)
+    # Devices that should always have a row, named as they appear after rename.
+    # A source that stops reporting drops the device entirely, so without this
+    # there is nothing left to gray out, the name goes too.
+    expect: list[str] = field(default_factory=list)
 
 
 def run_command(args: list[str]) -> str:
@@ -337,6 +341,7 @@ def load_config(path: Path) -> Config:
     return Config(
         hide=list(data.get("hide", [])),
         rename=dict(data.get("rename", {})),
+        expect=list(data.get("expect", [])),
     )
 
 
@@ -349,6 +354,20 @@ def apply_config(devices: list[Device], config: Config) -> list[Device]:
         device.name = config.rename.get(device.name, device.name)
         kept.append(device)
     return kept
+
+
+def fill_missing(devices: list[Device], config: Config) -> list[Device]:
+    """Add a placeholder row for every expected device that did not report.
+
+    Runs after apply_config, so the names compared here are the renamed ones a
+    user actually sees. The reason is generic because a placeholder is built
+    from an absence: no source claimed the device, so none can say why.
+    """
+    present = {device.name for device in devices}
+    missing = [name for name in config.expect if name not in present]
+    return devices + [
+        Device(name=name, source="expected", error="not reporting") for name in missing
+    ]
 
 
 def collect_devices() -> list[Device]:
@@ -435,7 +454,8 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    devices = apply_config(collect_devices(), load_config(CONFIG_PATH))
+    config = load_config(CONFIG_PATH)
+    devices = fill_missing(apply_config(collect_devices(), config), config)
 
     if args.json:
         print(to_json(devices))

@@ -31,7 +31,7 @@ export function DeviceRow({ device }: { device: Device }) {
   // A null percent means that source failed. Show why rather than a fake bar.
   if (device.percent === null) {
     return (
-      <div className="row">
+      <div className="row row-missing">
         <div className="row-head">
           <span className="row-name">
             <DeviceIcon name={device.name} />
@@ -39,6 +39,9 @@ export function DeviceRow({ device }: { device: Device }) {
           </span>
           <span className="row-percent row-percent-missing">--</span>
         </div>
+        {/* Empty track. Keeps a missing device the same height as a live one,
+            so the list does not jump as devices come and go. */}
+        <div className="row-track" />
         <div className="row-note">{device.error ?? "no reading"}</div>
       </div>
     );

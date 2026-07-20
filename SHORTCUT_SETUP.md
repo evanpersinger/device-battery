@@ -8,17 +8,20 @@ Roughly 5 minutes of setup, all on the phone except step 1.
 
 ## 1. Enable iCloud Drive on the Mac (required first)
 
-iCloud Drive is currently **off** on this Mac, so there's nowhere for the file to land.
+With iCloud Drive off there is nowhere for the file to land, so this comes first.
 
-System Settings > Apple Account > iCloud > iCloud Drive > turn on.
+System Settings > Apple Account > iCloud > **See All** under "Saved to iCloud", then enable
+iCloud Drive. The list is collapsed by default, so it isn't visible until you click See All.
 
-Verify it worked, this should print a path with no error:
+Leave **Desktop & Documents Folders** off, it syncs your entire Desktop and isn't needed here.
+
+Verify it worked, this should print a path ending in `com~apple~CloudDocs`:
 
 ```bash
 python3 -c "import battery; print(battery.icloud_root())"
 ```
 
-If the path it prints still ends in something like `(2024-10-12 11:17 AM)`, iCloud Drive
+If it still prints a path ending in something like `(2024-10-12 11:17 AM)`, iCloud Drive
 hasn't finished setting up. That folder is a leftover archive from when iCloud Drive was
 last switched off, not a live sync folder. Wait a minute and check again.
 

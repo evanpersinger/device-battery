@@ -1,6 +1,7 @@
 {
-  "_comment": "hide: exact device names to leave out. rename: map a detected name to a nicer one. Anything not listed still shows up.",
+  "_comment": "hide: exact device names to leave out. rename: map a detected name to a nicer one. expect: devices that always get a row, grayed out when they stop reporting, named as they appear after rename. Anything not listed still shows up.",
   "hide": [],
+  "expect": ["MacBook Pro", "Left AirPod", "Right AirPod", "AirPods Case", "iPhone"],
   "rename": {
     "Evan’s AirPods L": "Left AirPod",
     "Evan’s AirPods R": "Right AirPod",
