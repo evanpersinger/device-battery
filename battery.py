@@ -159,22 +159,23 @@ def mac_plugged_in(output: str) -> bool | None:
 
 
 def mac_status(output: str) -> str:
-    """Build a status string like 'discharging, 3:05 left' from pmset output.
+    """Build a status string like '3:05 left' from pmset output.
 
     pmset reports the same "remaining" field for both directions, but it means
     time until empty when discharging and time until full when charging, so the
-    wording has to follow the state.
+    wording has to follow the state. The state word itself is deliberately left
+    out, "left" vs "to full" already carries the direction and the UI draws a
+    bolt for plugged_in.
     """
     parts = [part.strip() for part in output.split(";")]
     state = parts[1] if len(parts) > 1 else ""
 
-    remaining = ""
     match = re.search(r"(\d+:\d{2})\s+remaining", output)
-    if match and match.group(1) != "0:00":
-        label = "to full" if "charging" in state and "dis" not in state else "left"
-        remaining = f"{match.group(1)} {label}"
+    if match is None or match.group(1) == "0:00":
+        return ""
 
-    return ", ".join(piece for piece in (state, remaining) if piece)
+    label = "to full" if "charging" in state and "dis" not in state else "left"
+    return f"{match.group(1)} {label}"
 
 
 def read_bluetooth_batteries() -> list[Device]:
