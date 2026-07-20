@@ -1,0 +1,136 @@
+:root {
+  --bg: #161618;
+  --fg: #f2f2f2;
+  --muted: #85858b;
+  --track: #2e2e33;
+  --green: #30d158;
+  --yellow: #ffd60a;
+  --red: #ff453a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  cursor: default;
+}
+
+.app {
+  padding: 8px 18px 18px;
+}
+
+/* Leaves room for the traffic lights, and lets the window be dragged by the header. */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 26px;
+  padding-bottom: 14px;
+  -webkit-app-region: drag;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.refresh {
+  -webkit-app-region: no-drag;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 10px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.refresh:hover {
+  color: var(--fg);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.refresh:active {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.row + .row {
+  margin-top: 14px;
+}
+
+.row-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.row-name {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.device-icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  color: var(--muted);
+  transform: translateY(1px);
+}
+
+.row-percent {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.row-percent-missing {
+  color: var(--muted);
+}
+
+.row-track {
+  height: 5px;
+  margin-top: 6px;
+  border-radius: 3px;
+  background: var(--track);
+  overflow: hidden;
+}
+
+.row-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 400ms ease;
+}
+
+.row-note {
+  margin-top: 4px;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.message {
+  margin: 0;
+  color: var(--muted);
+}
+
+.message-error {
+  color: var(--red);
+}

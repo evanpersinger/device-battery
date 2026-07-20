@@ -25,6 +25,12 @@ PUSHED_FOLDER_NAME = "device-battery"
 STALE_AFTER = timedelta(hours=2)
 COMMAND_TIMEOUT = 15
 
+# Absolute paths, because launchers like Ubersicht run commands without a login
+# shell's PATH. /usr/sbin in particular is missing from bash's fallback PATH,
+# which silently breaks the system_profiler call.
+PMSET = "/usr/bin/pmset"
+SYSTEM_PROFILER = "/usr/sbin/system_profiler"
+
 # Bluetooth battery fields, mapped to the suffix shown after the device name.
 BT_BATTERY_FIELDS = {
     "device_batteryLevelMain": "",
@@ -76,11 +82,11 @@ def run_command(args: list[str]) -> str:
             check=True,
         )
     except FileNotFoundError as exc:
-        raise CommandError(f"{args[0]} not found") from exc
+        raise CommandError(f"{Path(args[0]).name} not found") from exc
     except subprocess.TimeoutExpired as exc:
-        raise CommandError(f"{args[0]} timed out") from exc
+        raise CommandError(f"{Path(args[0]).name} timed out") from exc
     except subprocess.CalledProcessError as exc:
-        raise CommandError(f"{args[0]} exited {exc.returncode}") from exc
+        raise CommandError(f"{Path(args[0]).name} exited {exc.returncode}") from exc
     return result.stdout
 
 
@@ -112,7 +118,7 @@ def parse_percent(raw: str | int | float | None) -> int | None:
 def read_mac_battery() -> Device:
     """Read the Mac's internal battery from pmset."""
     try:
-        output = run_command(["pmset", "-g", "batt"])
+        output = run_command([PMSET, "-g", "batt"])
     except CommandError as exc:
         return Device(name="Mac", source="pmset", error=str(exc))
 
@@ -130,14 +136,20 @@ def read_mac_battery() -> Device:
 
 
 def mac_status(output: str) -> str:
-    """Build a status string like 'discharging, 3:05 left' from pmset output."""
+    """Build a status string like 'discharging, 3:05 left' from pmset output.
+
+    pmset reports the same "remaining" field for both directions, but it means
+    time until empty when discharging and time until full when charging, so the
+    wording has to follow the state.
+    """
     parts = [part.strip() for part in output.split(";")]
     state = parts[1] if len(parts) > 1 else ""
 
     remaining = ""
     match = re.search(r"(\d+:\d{2})\s+remaining", output)
-    if match:
-        remaining = f"{match.group(1)} left"
+    if match and match.group(1) != "0:00":
+        label = "to full" if "charging" in state and "dis" not in state else "left"
+        remaining = f"{match.group(1)} {label}"
 
     return ", ".join(piece for piece in (state, remaining) if piece)
 
@@ -145,7 +157,7 @@ def mac_status(output: str) -> str:
 def read_bluetooth_batteries() -> list[Device]:
     """Read every connected Bluetooth device that reports a battery level."""
     try:
-        raw = run_command(["system_profiler", "SPBluetoothDataType", "-json"])
+        raw = run_command([SYSTEM_PROFILER, "SPBluetoothDataType", "-json"])
     except CommandError as exc:
         return [Device(name="Bluetooth", source="bluetooth", error=str(exc))]
 
@@ -362,6 +374,7 @@ def to_json(devices: list[Device]) -> str:
             "status": device.status,
             "source": device.source,
             "updated_at": device.updated_at.isoformat() if device.updated_at else None,
+            "age": describe_age(device.updated_at),
             "error": device.error,
         }
         for device in devices
