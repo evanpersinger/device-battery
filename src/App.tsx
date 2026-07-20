@@ -11,13 +11,6 @@ export function App() {
     <main className="app">
       <header className="app-header">
         <h1>Devices</h1>
-        <button
-          type="button"
-          className="refresh"
-          onClick={() => void window.battery.refresh()}
-        >
-          Refresh
-        </button>
       </header>
 
       {reading === null ? (

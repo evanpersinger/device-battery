@@ -46,27 +46,6 @@ body {
   color: var(--muted);
 }
 
-.refresh {
-  -webkit-app-region: no-drag;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: transparent;
-  color: var(--muted);
-  font: inherit;
-  font-size: 10px;
-  padding: 3px 9px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.refresh:hover {
-  color: var(--fg);
-  border-color: rgba(255, 255, 255, 0.25);
-}
-
-.refresh:active {
-  background: rgba(255, 255, 255, 0.08);
-}
-
 .row + .row {
   margin-top: 14px;
 }

@@ -15,9 +15,4 @@ contextBridge.exposeInMainWorld("battery", {
       ipcRenderer.off("reading", listener);
     };
   },
-
-  /** Ask for an immediate poll instead of waiting for the next interval. */
-  refresh(): Promise<void> {
-    return ipcRenderer.invoke("refresh");
-  },
 });

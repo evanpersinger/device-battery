@@ -32,8 +32,7 @@ battery.py  →  electron/main.ts  →  electron/preload.ts  →  src/App.tsx
 Electron runs two processes. The **main** process (`electron/`) is Node with full system
 access, so it is the only part allowed to run `battery.py`. The **renderer** (`src/`) is
 Chromium drawing React, and it deliberately cannot touch the system at all. `preload.ts`
-is the entire bridge between them, exposing exactly two functions: `onReading` and
-`refresh`.
+is the entire bridge between them, exposing exactly one function: `onReading`.
 
 That is why `App.tsx` calls `window.battery.onReading(...)` rather than importing
 `child_process`. It literally cannot.
@@ -111,7 +110,7 @@ If the file is missing or malformed, everything shows with its raw name.
 | `battery.py` | all reading logic, plus the terminal frontend |
 | `electron/main.ts` | creates the window, polls `battery.py`, pushes results |
 | `electron/preload.ts` | the only bridge between Node and the UI |
-| `src/App.tsx` | layout and refresh state |
+| `src/App.tsx` | layout and reading state |
 | `src/DeviceRow.tsx` | one device: icon, name, percent, bar |
 | `src/DeviceIcon.tsx` | inline SVG icons, picked by device name |
 | `src/types.ts` | `Device` and `Reading`, mirrors the Python JSON |

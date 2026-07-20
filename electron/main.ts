@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow } from "electron";
 import { execFile } from "node:child_process";
 import { existsSync } from "node:fs";
 import path from "node:path";
@@ -98,11 +98,6 @@ function createWindow(): void {
     window = null;
   });
 }
-
-// Let the renderer force a refresh without waiting for the interval.
-ipcMain.handle("refresh", () => {
-  poll();
-});
 
 void app.whenReady().then(createWindow);
 
