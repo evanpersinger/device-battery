@@ -31,12 +31,13 @@ Shortcuts app > Shortcuts tab > `+` to create a new shortcut. Name it something 
 
 **Actions**, in order:
 
-1. **Get Battery Level**
-2. **Format Date** (required for the timestamp)
+1. **Get Battery Level** (for percent)
+2. **Get Battery Level** (mode: is charging status)
+3. **Format Date** (required for the timestamp)
    - Date: Current Date
    - Format: Custom, ISO 8601
    - **Enable "Include ISO 8601 time"**
-3. **Text** with the JSON structure below. Use the **"Select Variable" button** to insert the actual variable outputs (not literal text):
+4. **Text** with the JSON structure below. Use the **"Select Variable" button** to insert the actual variable outputs (not literal text):
 
    ```
    {"name": "iPhone", "percent": Battery Level, "plugged_in": "Is Charging", "updated_at": "Formatted Date"}
@@ -56,7 +57,7 @@ Shortcuts app > Shortcuts tab > `+` to create a new shortcut. Name it something 
    it means unknown, which displays as nothing. That is correct, and better than
    claiming the phone is unplugged when nobody actually knows.
 
-4. **Save File**
+5. **Save File**
    - Destination: iCloud Drive, folder `device-battery`, filename `iphone.json`
    - Turn **off** "Ask Where to Save"
    - Turn **on** "Overwrite If File Exists"
