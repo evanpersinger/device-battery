@@ -45,7 +45,7 @@ That is why `App.tsx` calls `window.battery.onReading(...)` rather than importin
 |---|---|---|
 | Mac | `pmset -g batt` | none |
 | AirPods, and any Bluetooth device reporting a battery | `system_profiler SPBluetoothDataType -json` | none |
-| iPhone | a JSON file in iCloud Drive, written by an iOS Shortcut | see `SHORTCUT_SETUP.md` |
+| iPhone, Apple Watch, iPad | a JSON file in iCloud Drive, written by an iOS/watchOS Shortcut | see `SHORTCUT_SETUP.md` |
 
 Each source is read independently. If one fails, that row shows the reason and everything
 else still renders.
@@ -128,5 +128,4 @@ If the file is missing or malformed, everything shows with its raw name.
 ## Possible next steps
 
 - Real artwork instead of the inline SVGs in `DeviceIcon.tsx`
-- Apple Watch row, using the same Shortcut recipe as the iPhone
 - History over time, which would need storage since nothing is currently persisted
