@@ -122,7 +122,8 @@ If the file is missing or malformed, everything shows with its raw name.
 | `src/DeviceIcon.tsx` | inline SVG icons, picked by device name |
 | `src/types.ts` | `Device` and `Reading`, mirrors the Python JSON |
 | `config.json` | device naming and visibility |
-| `SHORTCUT_SETUP.md` | the iPhone half, iOS Shortcut instructions |
+| `SHORTCUT_SETUP.md` | iOS Shortcut setup instructions |
+| `SHORTCUT_SETTINGS.example.md` | template for keeping track of each device's Shortcut configuration |
 
 ## Possible next steps
 

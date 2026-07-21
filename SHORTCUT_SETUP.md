@@ -25,25 +25,25 @@ If it still prints a path ending in something like `(2024-10-12 11:17 AM)`, iClo
 hasn't finished setting up. That folder is a leftover archive from when iCloud Drive was
 last switched off, not a live sync folder. Wait a minute and check again.
 
-## 2. Build the automation on the iPhone
+## 2. Create the Shortcut
 
-Shortcuts app > Automation tab > `+` > Time of Day.
-
-**Trigger**: Hourly. Use a time trigger, not the Battery Level trigger. Battery Level
-only fires when crossing a threshold, so it can leave the reading hours stale.
+Shortcuts app > Shortcuts tab > `+` to create a new shortcut. Name it something like "Device Battery" or "iPhone Battery".
 
 **Actions**, in order:
 
 1. **Get Battery Level**
-2. **Format Date**
+2. **Format Date** (required for the timestamp)
    - Date: Current Date
    - Format: Custom, ISO 8601
+   - **Enable "Include ISO 8601 time"**
 3. **Text**, containing exactly this (the two bracketed bits are variable tokens you
    insert, not literal text):
 
    ```
    {"name": "iPhone", "percent": [Battery Level], "updated_at": "[Formatted Date]"}
    ```
+
+   The `updated_at` timestamp is used to show how long ago the reading was taken (e.g. "4 min ago") and to flag readings older than 2 hours as `stale`.
 
    An optional `"plugged_in": true` or `false` is read if you can produce it. Shortcuts
    has no direct "is charging" action, so leave it out unless you find a way. Omitting
@@ -55,9 +55,18 @@ only fires when crossing a threshold, so it can leave the reading hours stale.
    - Turn **off** "Ask Where to Save"
    - Turn **on** "Overwrite If File Exists"
 
+## 3. Create the Automation
+
+Shortcuts app > Automation tab > `+` > Time of Day.
+
+**Trigger**: Hourly. Use a time trigger, not the Battery Level trigger. Battery Level
+only fires when crossing a threshold, so it can leave the reading hours stale.
+
+**Action**: Run the Shortcut you just created.
+
 Finally, turn **off** "Ask Before Running" so it runs silently.
 
-## 3. Check it
+## 4. Check it
 
 Run the automation once by hand from the Shortcuts app, then on the Mac:
 
