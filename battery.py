@@ -77,6 +77,10 @@ class Config:
     # A source that stops reporting drops the device entirely, so without this
     # there is nothing left to gray out, the name goes too.
     expect: list[str] = field(default_factory=list)
+    # Overrides icloud_root() when set, so a Shortcut can push into Google
+    # Drive/Dropbox/etc. instead. Still joined with PUSHED_FOLDER_NAME, same as
+    # the iCloud path.
+    pushed_folder: str | None = None
 
 
 def run_command(args: list[str]) -> str:
@@ -240,9 +244,9 @@ def icloud_root() -> Path | None:
     return None
 
 
-def read_pushed_devices() -> list[Device]:
-    """Read devices that push their level into iCloud Drive via a Shortcut."""
-    root = icloud_root()
+def read_pushed_devices(config: Config) -> list[Device]:
+    """Read devices that push their level into a synced folder via a Shortcut."""
+    root = Path(config.pushed_folder).expanduser() if config.pushed_folder else icloud_root()
     if root is None:
         return []
 
@@ -262,19 +266,19 @@ def pushed_device(path: Path) -> Device:
     try:
         data = json.loads(path.read_text())
     except (OSError, json.JSONDecodeError) as exc:
-        return Device(name=fallback, source="icloud", error=f"unreadable: {exc}")
+        return Device(name=fallback, source="pushed", error=f"unreadable: {exc}")
 
     if not isinstance(data, dict):
-        return Device(name=fallback, source="icloud", error="expected a JSON object")
+        return Device(name=fallback, source="pushed", error="expected a JSON object")
 
     percent = parse_percent(data.get("percent"))
     if percent is None:
-        return Device(name=fallback, source="icloud", error="no percent field")
+        return Device(name=fallback, source="pushed", error="no percent field")
 
     return Device(
         name=data.get("name") or fallback,
         percent=percent,
-        source="icloud",
+        source="pushed",
         updated_at=parse_timestamp(data.get("updated_at")),
         plugged_in=parse_bool(data.get("plugged_in")),
     )
@@ -338,10 +342,12 @@ def load_config(path: Path) -> Config:
         return Config()
     if not isinstance(data, dict):
         return Config()
+    pushed_folder = data.get("pushed_folder")
     return Config(
         hide=list(data.get("hide", [])),
         rename=dict(data.get("rename", {})),
         expect=list(data.get("expect", [])),
+        pushed_folder=pushed_folder if isinstance(pushed_folder, str) else None,
     )
 
 
@@ -370,11 +376,11 @@ def fill_missing(devices: list[Device], config: Config) -> list[Device]:
     ]
 
 
-def collect_devices() -> list[Device]:
+def collect_devices(config: Config) -> list[Device]:
     """Gather every reading from every source."""
     devices = [read_mac_battery()]
     devices.extend(read_bluetooth_batteries())
-    devices.extend(read_pushed_devices())
+    devices.extend(read_pushed_devices(config))
     return devices
 
 
@@ -455,7 +461,7 @@ def main() -> int:
     args = parser.parse_args()
 
     config = load_config(CONFIG_PATH)
-    devices = fill_missing(apply_config(collect_devices(), config), config)
+    devices = fill_missing(apply_config(collect_devices(config), config), config)
 
     if args.json:
         print(to_json(devices))
