@@ -95,6 +95,19 @@ only fires when crossing a threshold, so it can leave the reading hours stale.
 
 Finally, turn **off** "Ask Before Running" so it runs silently.
 
+### For Apple Watch
+
+If you're setting up the Shortcut on your Apple Watch:
+
+1. Open Shortcuts app on the Watch itself
+2. Go to **Automation** tab
+3. Tap `+` and select **Time of Day**
+4. Set it to hourly at your preferred times (every 30 min like the iPhone)
+5. Choose the Watch Shortcut to run
+6. Turn **off** "Ask Before Running"
+
+**Important:** The automation must be created on the Watch, not synced from iPhone. watchOS Shortcuts only reads the Watch's own battery when the Shortcut runs on the Watch device itself.
+
 ## 4. Check it
 
 Run the automation once by hand from the Shortcuts app, then on the Mac:
