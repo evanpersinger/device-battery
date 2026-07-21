@@ -36,12 +36,18 @@ Shortcuts app > Shortcuts tab > `+` to create a new shortcut. Name it something 
    - Date: Current Date
    - Format: Custom, ISO 8601
    - **Enable "Include ISO 8601 time"**
-3. **Text**, containing exactly this (the two bracketed bits are variable tokens you
-   insert, not literal text):
+3. **Text** with the JSON structure below. Use the **"Select Variable" button** to insert the actual variable outputs (not literal text):
 
    ```
-   {"name": "iPhone", "percent": [Battery Level], "updated_at": "[Formatted Date]"}
+   {"name": "iPhone", "percent": Battery Level, "plugged_in": "Is Charging", "updated_at": "Formatted Date"}
    ```
+
+   **Important formatting rules:**
+   - `"percent": Battery Level` — NO quotes around the variable (outputs a number)
+   - `"plugged_in": "Is Charging"` — quotes around ONLY this variable (outputs a string like "Yes" or "No")
+   - `"updated_at": "Formatted Date"` — the outer quotes are literal text, the variable goes inside them
+
+   The variables must be inserted as tokens/pills (colored elements), not typed as literal text. Tap "Select Variable" next to each bracketed item and choose the corresponding action output.
 
    The `updated_at` timestamp is used to show how long ago the reading was taken (e.g. "4 min ago") and to flag readings older than 2 hours as `stale`.
 

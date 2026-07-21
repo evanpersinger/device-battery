@@ -15,12 +15,19 @@ Create one Shortcut per device (e.g., "iPhone Battery", "Apple Watch Battery", "
    - Enable "Include ISO 8601 time"
 4. Text:
    ```
-   {"name": "Device Name", "percent": [Battery Level], "plugged_in": [Get Battery Level], "updated_at": "[Formatted Date]"}
+   {"name": "Device Name", "percent": Battery Level, "plugged_in": "Is Charging", "updated_at": "Formatted Date"}
    ```
    Replace `"Device Name"` with your device name (must match the name in `config.json`)
+   
+   **Formatting rules (critical):**
+   - `"percent": Battery Level` — NO quotes around the variable (must output a number)
+   - `"plugged_in": "Is Charging"` — quotes around ONLY this variable (outputs a string like "Yes" or "No")
+   - `"updated_at": "Formatted Date"` — the outer quotes are literal text in the JSON, insert the variable inside them
+   
+   Use the "Select Variable" button to insert the actual variables as tokens/pills (colored elements). They must be inserted, not typed as text.
 
-5. Save File
-   - Destination: iCloud Drive
+5. Save Text
+   - **Destination: iCloud Drive** (not "Shortcuts" — tap the dropdown to change it)
    - Subpath: `device-battery`
    - Filename: `device-name.json` (e.g., `iphone.json`, `watch.json`, `ipad.json`)
    - Ask Where to Save: OFF

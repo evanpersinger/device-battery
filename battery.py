@@ -255,7 +255,7 @@ def read_pushed_devices(config: Config) -> list[Device]:
         return []
 
     devices: list[Device] = []
-    for path in sorted(folder.glob("*.json")):
+    for path in sorted(list(folder.glob("*.json")) + list(folder.glob("*.txt"))):
         devices.append(pushed_device(path))
     return devices
 
