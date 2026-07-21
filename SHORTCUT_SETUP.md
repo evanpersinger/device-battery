@@ -25,6 +25,32 @@ If it still prints a path ending in something like `(2024-10-12 11:17 AM)`, iClo
 hasn't finished setting up. That folder is a leftover archive from when iCloud Drive was
 last switched off, not a live sync folder. Wait a minute and check again.
 
+### Create the device-battery folder
+
+iCloud Drive is now syncing on your Mac, but the `device-battery` folder doesn't exist yet.
+Create it so Shortcuts can save files there:
+
+```bash
+mkdir -p ~/Library/Mobile\ Documents/com~apple~CloudDocs/device-battery
+```
+
+Verify it was created:
+
+```bash
+ls -la ~/Library/Mobile\ Documents/com~apple~CloudDocs/device-battery
+```
+
+### Enable iCloud on your iPhone/Watch
+
+On each device that will report battery:
+
+**iPhone/iPad**: Settings > [Your Name] > iCloud > iCloud Drive > Turn **On**
+
+**Apple Watch**: Settings > [Your Name] > iCloud > iCloud Drive > Turn **On**
+
+The Shortcuts app needs access to iCloud Drive. It will ask for permission the first
+time it tries to save a file—approve it.
+
 ## 2. Create the Shortcut
 
 Shortcuts app > Shortcuts tab > `+` to create a new shortcut. Name it something like "Device Battery" or "iPhone Battery".
