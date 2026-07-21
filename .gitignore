@@ -19,3 +19,7 @@ venv/
 .vscode/
 .idea/
 issues.md
+things_to_know.md
+
+# Config
+config.json

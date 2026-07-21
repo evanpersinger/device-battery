@@ -86,29 +86,27 @@ The AirPods case level only appears while the case is open and connected.
 
 ## Config
 
-`config.json` controls naming and visibility. Anything not listed still shows up, so a
-new Bluetooth device appears without touching this file.
+`config.json` controls device naming and visibility. Start by copying `config.example.json` to `config.json` and customize it for your devices:
 
-```json
-{
-  "hide": ["Magic Keyboard"],
-  "expect": ["iPhone"],
-  "rename": {
-    "Evan’s AirPods L": "AirPods L"
-  }
-}
+```bash
+cp config.example.json config.json
 ```
 
-`expect` lists devices that should always have a row. A source that stops reporting drops
-the device from its output entirely, so without this an unplugged AirPod does not gray
-out, it disappears along with its name. Expected devices that did not report get a dimmed
-row reading `not reporting`.
+Then edit `config.json` to replace the placeholder names with your actual device names.
 
-Names in `expect` are the ones you see, after `rename` has been applied. Names in `hide`
-and the left side of `rename` are the raw ones macOS reports.
+**Fields:**
 
-Run `python3 battery.py --json` to see names exactly as detected, including the curly
-apostrophe Apple uses.
+- `hide`: Device names to exclude from the list entirely (uses raw names detected by the system)
+- `rename`: Map raw device names to display names (left side is raw, right side is what you’ll see)
+- `expect`: Devices that should always have a row, even when offline (uses display names after rename)
+
+Anything not listed in `hide` or `expect` still shows up automatically, so a new Bluetooth device appears without editing this file.
+
+Without `expect`, devices that stop reporting disappear entirely. With it, they show a dimmed row reading `not reporting`.
+
+Names in `expect` must match the display names (after `rename` is applied). Names in `hide` and the left side of `rename` are the raw names macOS reports.
+
+Run `python3 battery.py --json` to see the exact raw names detected by your system.
 
 If the file is missing or malformed, everything shows with its raw name.
 

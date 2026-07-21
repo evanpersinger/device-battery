@@ -1,0 +1,13 @@
+{
+  "_comment": "Copy this file to config.json and customize for your devices. hide: exact device names to exclude. rename: map raw device names (as reported by the system) to display names. expect: devices that always get a row (grayed out when offline), using display names after rename is applied.",
+  "hide": [],
+  "expect": ["MacBook Pro", "iPhone", "Apple Watch"],
+  "rename": {
+    "Your Mac Name": "MacBook Pro",
+    "iphone": "iPhone",
+    "apple watch": "Apple Watch",
+    "Your AirPods L": "Left AirPod",
+    "Your AirPods R": "Right AirPod",
+    "Your AirPods Case": "AirPods Case"
+  }
+}

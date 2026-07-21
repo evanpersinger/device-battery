@@ -70,7 +70,7 @@ function poll(): void {
 function createWindow(): void {
   window = new BrowserWindow({
     width: 320,
-    height: 460,
+    height: 420,
     title: "Devices",
     backgroundColor: "#161618",
     titleBarStyle: "hiddenInset",

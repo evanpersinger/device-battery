@@ -24,7 +24,7 @@ body {
 }
 
 .app {
-  padding: 8px 18px 18px;
+  padding: 8px 18px 0;
 }
 
 /* Leaves room for the traffic lights, and lets the window be dragged by the header. */
