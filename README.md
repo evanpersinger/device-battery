@@ -50,6 +50,8 @@ That is why `App.tsx` calls `window.battery.onReading(...)` rather than importin
 Each source is read independently. If one fails, that row shows the reason and everything
 else still renders.
 
+**Note:** Shortcut-based reporting (iPhone, Apple Watch, iPad) only works on Apple's mobile/wearable platforms. It does not work on macOS devices—the Mac's battery is read directly via `pmset`.
+
 Anything that pushes a `*.json` file into `iCloud Drive/device-battery/` shows up
 automatically, so an iPad or Apple Watch is just another copy of the same Shortcut.
 Readings older than 2 hours get flagged `stale` so a number that stopped updating never
