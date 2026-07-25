@@ -464,6 +464,27 @@ def fill_missing(
     return devices + filled
 
 
+def order_devices(devices: list[Device], config: Config) -> list[Device]:
+    """Give every device in `expect` a fixed position, live or not.
+
+    Without this, a device's row jumps around as it starts and stops
+    reporting, since a live reading lands wherever its source happened to put
+    it while a placeholder from fill_missing() always lands at the end. Most
+    visible with the AirPods Case, which used to hop position every time the
+    lid opened or shut.
+
+    Devices not in `expect` are unaffected: sorted() is stable, so they keep
+    their original relative order, just placed after every expected device.
+    """
+    def rank(device: Device) -> tuple[int, int]:
+        try:
+            return (0, config.expect.index(device.name))
+        except ValueError:
+            return (1, 0)
+
+    return sorted(devices, key=rank)
+
+
 def collect_devices(config: Config) -> list[Device]:
     """Gather every reading from every source."""
     devices = [read_mac_battery()]
@@ -550,7 +571,9 @@ def main() -> int:
 
     config = load_config(CONFIG_PATH)
     cache = load_cache()
-    devices = fill_missing(apply_config(collect_devices(config), config), config, cache)
+    devices = order_devices(
+        fill_missing(apply_config(collect_devices(config), config), config, cache), config
+    )
 
     for device in devices:
         if device.percent is not None and device.source != "cached":
