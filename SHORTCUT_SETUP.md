@@ -59,7 +59,13 @@ Shortcuts app > Shortcuts tab > `+` to create a new shortcut. Name it something 
 
 1. **Get Battery Level** (for percent)
 2. **Get Battery Level** (mode: is charging status)
-3. **Text** with the JSON structure below. Use the **"Select Variable" button** to insert the actual variable outputs (not literal text):
+3. **Format Date** (required for the timestamp) — must come before the Text action below, or
+   the variable it produces doesn't exist yet when Text tries to reference it
+   - Date: Current Date
+   - Format: Custom, ISO 8601
+   - **Enable "Include ISO 8601 time"**
+
+4. **Text** with the JSON structure below. Use the **"Select Variable" button** to insert the actual variable outputs (not literal text):
 
    ```
    {"name": "iPhone", "percent": Battery Level, "plugged_in": "Is Charging", "updated_at": "Formatted Date"}
@@ -73,11 +79,6 @@ Shortcuts app > Shortcuts tab > `+` to create a new shortcut. Name it something 
    The variables must be inserted as tokens/pills (colored elements), not typed as literal text. Tap "Select Variable" next to each bracketed item and choose the corresponding action output.
 
    The `updated_at` timestamp is used to show how long ago the reading was taken (e.g. "4 min ago") and to flag readings older than 2 hours as `stale`.
-
-4. **Format Date** (required for the timestamp)
-   - Date: Current Date
-   - Format: Custom, ISO 8601
-   - **Enable "Include ISO 8601 time"**
 
 5. **Save Text** to iCloud Drive
    - Destination: iCloud Drive, folder `device-battery`, filename `iphone.json`
@@ -121,6 +122,12 @@ gets flagged as `stale`, so a number that stopped updating never looks current.
 
 ## Gotchas
 
+- **A red variable pill means it's broken.** In the Text action, "Battery Level" and
+  "Is Charging" should be blue. If "Formatted Date" (or any variable) shows up red or
+  orange instead, Shortcuts is telling you that action's output doesn't exist yet at
+  this point, usually because the action producing it got moved below Text. Delete the
+  red pill and re-insert it after fixing the order, moving an action doesn't repair an
+  already-broken reference.
 - **Percent must be a whole number.** If your iPhone row reads `1%` when the phone is
   actually full, Shortcuts sent `1.0` instead of `100`. Add a **Calculate** action
   multiplying Battery Level by 100.
