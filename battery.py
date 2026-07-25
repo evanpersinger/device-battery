@@ -143,6 +143,7 @@ def read_mac_battery() -> Device:
         name="Mac",
         percent=percent,
         source="pmset",
+        updated_at=datetime.now(),
         plugged_in=mac_plugged_in(output),
     )
 
@@ -199,12 +200,20 @@ def bluetooth_devices(name: str, info: dict) -> list[Device]:
         if percent is None:
             continue
         display = f"{name} {label}".strip()
-        found.append(Device(name=display, percent=percent, source="bluetooth"))
+        found.append(
+            Device(name=display, percent=percent, source="bluetooth", updated_at=datetime.now())
+        )
     return found
 
 
 def icloud_root() -> Path | None:
-    """Locate iCloud Drive, checking both the classic and CloudStorage paths."""
+    """Locate iCloud Drive, checking both the classic and CloudStorage paths.
+
+    A dead archive left behind when Drive is switched off always carries a
+    "(<timestamp>)" suffix in its folder name, unlike a live folder.
+    read_pushed_devices() checks for that same suffix to tell "Drive is off"
+    apart from "Drive is on but empty" instead of getting an empty result either way.
+    """
     classic = Path.home() / "Library" / "Mobile Documents" / "com~apple~CloudDocs"
     if classic.is_dir():
         return classic
@@ -225,9 +234,12 @@ def icloud_root() -> Path | None:
 
 def read_pushed_devices(config: Config) -> list[Device]:
     """Read devices that push their level into a synced folder via a Shortcut."""
-    root = Path(config.pushed_folder).expanduser() if config.pushed_folder else icloud_root()
-    if root is None:
-        return []
+    if config.pushed_folder:
+        root = Path(config.pushed_folder).expanduser()
+    else:
+        root = icloud_root()
+        if root is None or "(" in root.name:
+            return [Device(name="iCloud Drive", source="pushed", error="iCloud Drive is not syncing")]
 
     folder = root / PUSHED_FOLDER_NAME
     if not folder.is_dir():
@@ -299,9 +311,7 @@ def describe_age(moment: datetime | None) -> str:
         return "clock skew"
 
     minutes = int(delta.total_seconds() // 60)
-    if minutes < 1:
-        age = "just now"
-    elif minutes < 60:
+    if minutes < 60:
         age = f"{minutes}m ago"
     elif minutes < 60 * 24:
         age = f"{minutes // 60}h ago"
