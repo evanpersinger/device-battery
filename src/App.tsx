@@ -9,9 +9,7 @@ export function App() {
 
   return (
     <main className="app">
-      <header className="app-header">
-        <h1>Devices</h1>
-      </header>
+      <header className="app-header" />
 
       {reading === null ? (
         <p className="message">Reading...</p>

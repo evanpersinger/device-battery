@@ -9,12 +9,11 @@ Reads three sources, each independently:
 Any source failing degrades to a single error row rather than killing the view.
 """
 
-from __future__ import annotations
-
-import argparse
-import json
-import re
-import subprocess
+from __future__ import annotations # newer type-hint syntax
+import argparse # parsing command-line flags
+import json # converting python objects and JSON text
+import re # regular expressions module
+import subprocess # 
 import sys
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
@@ -29,6 +28,9 @@ COMMAND_TIMEOUT = 15
 # Absolute paths, because launchers like Ubersicht run commands without a login
 # shell's PATH. /usr/sbin in particular is missing from bash's fallback PATH,
 # which silently breaks the system_profiler call.
+# Unlike electron/main.ts's resolvePython(), this isn't a search across
+# candidates, it's a plain constant: Apple ships both binaries at these exact
+# paths on every Mac, there is nothing to search for.
 PMSET = "/usr/bin/pmset"
 SYSTEM_PROFILER = "/usr/sbin/system_profiler"
 
@@ -50,7 +52,6 @@ RESET = "\033[0m"
 
 class CommandError(Exception):
     """A shell command failed or was unavailable."""
-
 
 @dataclass
 class Device:
@@ -141,7 +142,6 @@ def read_mac_battery() -> Device:
     return Device(
         name="Mac",
         percent=percent,
-        status=mac_status(output),
         source="pmset",
         plugged_in=mac_plugged_in(output),
     )
@@ -163,26 +163,6 @@ def mac_plugged_in(output: str) -> bool | None:
     if source == "Battery Power":
         return False
     return None
-
-
-def mac_status(output: str) -> str:
-    """Build a status string like '3:05 left' from pmset output.
-
-    pmset reports the same "remaining" field for both directions, but it means
-    time until empty when discharging and time until full when charging, so the
-    wording has to follow the state. The state word itself is deliberately left
-    out, "left" vs "to full" already carries the direction and the UI draws a
-    bolt for plugged_in.
-    """
-    parts = [part.strip() for part in output.split(";")]
-    state = parts[1] if len(parts) > 1 else ""
-
-    match = re.search(r"(\d+:\d{2})\s+remaining", output)
-    if match is None or match.group(1) == "0:00":
-        return ""
-
-    label = "to full" if "charging" in state and "dis" not in state else "left"
-    return f"{match.group(1)} {label}"
 
 
 def read_bluetooth_batteries() -> list[Device]:
