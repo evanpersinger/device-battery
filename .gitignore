@@ -23,6 +23,7 @@ things_to_know.md
 
 # Config
 config.json
+.battery_cache.json
 
 # Personal backups
 SHORTCUT_SETTINGS.md

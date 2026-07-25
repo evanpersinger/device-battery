@@ -21,6 +21,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 CONFIG_PATH = Path(__file__).resolve().parent / "config.json"
+CACHE_PATH = Path(__file__).resolve().parent / ".battery_cache.json"
 PUSHED_FOLDER_NAME = "device-battery"
 STALE_AFTER = timedelta(hours=2)
 COMMAND_TIMEOUT = 15
@@ -54,7 +55,6 @@ class CommandError(Exception):
 @dataclass
 class Device:
     """One battery reading, or one failed attempt at getting a reading."""
-
     name: str
     percent: int | None = None
     status: str = ""
@@ -70,7 +70,6 @@ class Device:
 @dataclass
 class Config:
     """User preferences for which devices appear and what they're called."""
-
     hide: list[str] = field(default_factory=list)
     rename: dict[str, str] = field(default_factory=dict)
     # Devices that should always have a row, named as they appear after rename.
@@ -351,6 +350,56 @@ def load_config(path: Path) -> Config:
     )
 
 
+def load_cache() -> dict[str, dict]:
+    """Load the last-known reading for every device we've ever seen.
+
+    Falls back to an empty cache if the file is missing or corrupt, same as
+    load_config, a lost local cache is not worth crashing a poll over.
+    """
+    if not CACHE_PATH.is_file():
+        return {}
+    try:
+        data = json.loads(CACHE_PATH.read_text())
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def save_cache(cache: dict[str, dict]) -> None:
+    """Persist the cache, best-effort. A failed write should not break a poll."""
+    try:
+        CACHE_PATH.write_text(json.dumps(cache, indent=2))
+    except OSError:
+        pass
+
+
+def device_to_cache_entry(device: Device) -> dict:
+    """Serialize a live reading for storage in the cache."""
+    return {
+        "percent": device.percent,
+        "status": device.status,
+        "source": device.source,
+        "updated_at": (device.updated_at or datetime.now()).isoformat(),
+        "plugged_in": device.plugged_in,
+    }
+
+
+def cache_entry_to_device(name: str, entry: dict) -> Device:
+    """Rebuild a Device from a cached entry, for a source that has gone quiet.
+
+    updated_at comes from the cache, not now, so describe_age() reports how
+    long it has actually been since this device last reported.
+    """
+    return Device(
+        name=name,
+        percent=entry.get("percent"),
+        status=entry.get("status") or "",
+        source="cached",
+        updated_at=parse_timestamp(entry.get("updated_at")),
+        plugged_in=entry.get("plugged_in"),
+    )
+
+
 def apply_config(devices: list[Device], config: Config) -> list[Device]:
     """Rename devices and drop hidden ones. Unknown devices are kept."""
     kept: list[Device] = []
@@ -362,18 +411,27 @@ def apply_config(devices: list[Device], config: Config) -> list[Device]:
     return kept
 
 
-def fill_missing(devices: list[Device], config: Config) -> list[Device]:
-    """Add a placeholder row for every expected device that did not report.
+def fill_missing(
+    devices: list[Device], config: Config, cache: dict[str, dict]
+) -> list[Device]:
+    """Fill in every expected device that did not report this run.
 
     Runs after apply_config, so the names compared here are the renamed ones a
-    user actually sees. The reason is generic because a placeholder is built
-    from an absence: no source claimed the device, so none can say why.
+    user actually sees. A device with a cached last-known reading falls back
+    to that (existing staleness logic then labels it "stale, ...ago"). A
+    device that has never once reported still gets a plain "not reporting"
+    row, there is nothing to fall back to.
     """
     present = {device.name for device in devices}
     missing = [name for name in config.expect if name not in present]
-    return devices + [
-        Device(name=name, source="expected", error="not reporting") for name in missing
-    ]
+    filled: list[Device] = []
+    for name in missing:
+        entry = cache.get(name)
+        if entry and entry.get("percent") is not None:
+            filled.append(cache_entry_to_device(name, entry))
+        else:
+            filled.append(Device(name=name, source="expected", error="not reporting"))
+    return devices + filled
 
 
 def collect_devices(config: Config) -> list[Device]:
@@ -461,7 +519,13 @@ def main() -> int:
     args = parser.parse_args()
 
     config = load_config(CONFIG_PATH)
-    devices = fill_missing(apply_config(collect_devices(config), config), config)
+    cache = load_cache()
+    devices = fill_missing(apply_config(collect_devices(config), config), config, cache)
+
+    for device in devices:
+        if device.percent is not None and device.source != "cached":
+            cache[device.name] = device_to_cache_entry(device)
+    save_cache(cache)
 
     if args.json:
         print(to_json(devices))

@@ -8,7 +8,7 @@ const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.join(currentDir, "..");
 const scriptPath = path.join(projectRoot, "battery.py");
 
-const POLL_INTERVAL_MS = 30_000;
+const POLL_INTERVAL_MS = 10_000;
 const POLL_TIMEOUT_MS = 20_000;
 
 let window: BrowserWindow | null = null;
