@@ -380,13 +380,53 @@ def cache_entry_to_device(name: str, entry: dict) -> Device:
     )
 
 
+def default_display_name(raw_name: str) -> str | None:
+    """Guess a friendly display name from words in a raw device name.
+
+    Used only as a fallback when config.json's own `rename` has no entry, so
+    a fresh install shows sensible names (iPhone, AirPods Case, ...) with no
+    configuration at all. Checked most-specific first, so "AirPods Case"
+    matches before the plainer "AirPods" family check would. The L/R/Case
+    suffixes are reliable to match on because bluetooth_devices() is the one
+    appending them (" L", " R", " Case"), not arbitrary vendor text.
+    """
+    lowered = raw_name.lower()
+
+    if "airpods" in lowered:
+        if lowered.endswith(" case"):
+            return "AirPods Case"
+        if lowered.endswith(" l"):
+            return "Left AirPod"
+        if lowered.endswith(" r"):
+            return "Right AirPod"
+        return "AirPods"
+
+    if "iphone" in lowered:
+        return "iPhone"
+    if "ipad" in lowered:
+        return "iPad"
+    if "apple watch" in lowered:
+        return "Apple Watch"
+
+    return None
+
+
 def apply_config(devices: list[Device], config: Config) -> list[Device]:
-    """Rename devices and drop hidden ones. Unknown devices are kept."""
+    """Rename devices and drop hidden ones. Unknown devices are kept.
+
+    config.rename always wins when present. Otherwise default_display_name()
+    is tried, so a fresh install still shows friendly names with no config at
+    all. Failing both, the raw name is kept as-is.
+    """
     kept: list[Device] = []
     for device in devices:
         if device.name in config.hide:
             continue
-        device.name = config.rename.get(device.name, device.name)
+        device.name = (
+            config.rename.get(device.name)
+            or default_display_name(device.name)
+            or device.name
+        )
         kept.append(device)
     return kept
 
