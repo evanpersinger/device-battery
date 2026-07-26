@@ -52,6 +52,8 @@ else still renders.
 
 **Note:** Shortcut-based reporting (iPhone, Apple Watch, iPad) only works on Apple's mobile/wearable platforms. It does not work on macOS devices—the Mac's battery is read directly via `pmset`.
 
+**Apple Watch is temporarily disabled** (hidden via `config.json`'s `hide`), its pushed reading's `updated_at` field isn't populating correctly yet. Remove it from `hide` and add it back to `expect` once that's sorted out.
+
 Anything that pushes a `*.json` file into `iCloud Drive/device-battery/` shows up
 automatically, so an iPad or Apple Watch is just another copy of the same Shortcut.
 Readings older than 2 hours get flagged `stale` so a number that stopped updating never

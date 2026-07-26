@@ -13,9 +13,9 @@ from __future__ import annotations # newer type-hint syntax
 import argparse # parsing command-line flags
 import json # converting python objects and JSON text
 import re # regular expressions module
-import subprocess # 
-import sys
-from dataclasses import dataclass, field
+import subprocess # used for letting python run external commands
+import sys 
+from dataclasses import dataclass, field 
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -43,6 +43,7 @@ BT_BATTERY_FIELDS = {
     "device_batteryLevel": "",
 }
 
+# colors used for UI
 GREEN = "\033[32m"
 YELLOW = "\033[33m"
 RED = "\033[31m"
