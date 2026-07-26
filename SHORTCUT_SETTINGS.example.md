@@ -2,29 +2,36 @@
 
 Template documentation for Shortcut configuration. Copy and customize for your device names and schedule.
 
+Bracketed items in the Text action below (`[Battery Level]`, `[Get Battery Level]`,
+`[Formatted Date]`) are Shortcuts variables, not literal text. Insert them by tapping
+"Select Variable" in the Text action and picking the matching action's output, typing
+the brackets by hand will not work.
+
+The times you pick for the **Automations** below are arbitrary, set whatever schedule
+fits. Since a Time of Day automation only fires once at its set time, more automations
+means more frequent battery updates, fewer means less frequent.
+
 ## Device Shortcut Template
 
 Create one Shortcut per device (e.g., "iPhone Battery", "Apple Watch Battery", "iPad Battery").
 
 **Shortcut Actions** (in order):
 1. Get Battery Level
-2. Get Battery Level (mode: is charging status)
+2. Get Battery Level (mode: is Charging)
 3. Format Date
    - Date: Current Date
    - Format: Custom, ISO 8601
    - Enable "Include ISO 8601 time"
 4. Text:
    ```
-   {"name": "Device Name", "percent": Battery Level, "plugged_in": "Is Charging", "updated_at": "Formatted Date"}
+   {"name": "Device Name", "percent": [Battery Level], "plugged_in": [Get Battery Level], "updated_at": "[Formatted Date]"}
    ```
    Replace `"Device Name"` with your device name (must match the name in `config.json`)
-   
+
    **Formatting rules (critical):**
-   - `"percent": Battery Level` — NO quotes around the variable (must output a number)
-   - `"plugged_in": "Is Charging"` — quotes around ONLY this variable (outputs a string like "Yes" or "No")
-   - `"updated_at": "Formatted Date"` — the outer quotes are literal text in the JSON, insert the variable inside them
-   
-   Use the "Select Variable" button to insert the actual variables as tokens/pills (colored elements). They must be inserted, not typed as text.
+   - `"percent": [Battery Level]` — NO quotes around the variable (must output a number)
+   - `"plugged_in": [Get Battery Level]` — NO quotes around this variable either (outputs a string like "Yes" or "No" on its own)
+   - `"updated_at": "[Formatted Date]"` — the outer quotes are literal text in the JSON, insert the variable inside them
 
 5. Save Text
    - **Destination: iCloud Drive** (not "Shortcuts" — tap the dropdown to change it)
@@ -33,14 +40,9 @@ Create one Shortcut per device (e.g., "iPhone Battery", "Apple Watch Battery", "
    - Ask Where to Save: OFF
    - Overwrite If File Exists: ON
 
-**Automations**: Create Time of Day automations
+**Automations**: Time of Day trigger, one automation per desired update time (see note above)
 
-Set up as many automations as desired within your preferred time window, spaced 30 minutes apart. Each automation:
-- Trigger: Time of Day, Hourly at a specific time
-- Action: Run Shortcut [Your Device Shortcut]
-- Ask Before Running: OFF
-
-**Example schedule** (8 AM - 10 PM, every 30 min): 28 automations total at 8:00, 8:30, 9:00, 9:30, etc.
+Each automation: Run Shortcut [Your Device Shortcut], Ask Before Running: OFF
 
 ## iCloud Setup
 

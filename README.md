@@ -12,7 +12,7 @@ pnpm install     # first time only
 pnpm dev
 ```
 
-A window opens and refreshes every 30 seconds. Close it like any window.
+A window opens and refreshes every 10 seconds. Close it like any window.
 
 There is also a terminal frontend with no JavaScript involved, useful for debugging:
 
@@ -134,4 +134,5 @@ If the file is missing or malformed, everything shows with its raw name.
 ## Possible next steps
 
 - Real artwork instead of the inline SVGs in `DeviceIcon.tsx`
-- History over time, which would need storage since nothing is currently persisted
+- History over time. `.battery_cache.json` only keeps the last known reading per device
+  for offline fallback, a real history would need its own storage
