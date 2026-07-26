@@ -52,6 +52,13 @@ else still renders.
 
 **Note:** Shortcut-based reporting (iPhone, Apple Watch, iPad) only works on Apple's mobile/wearable platforms. It does not work on macOS devices—the Mac's battery is read directly via `pmset`.
 
+**Why the Shortcut is needed:** the Mac reads its own battery directly, and Bluetooth
+devices like AirPods broadcast their level automatically, no setup required either way.
+An iPhone, Apple Watch, or iPad does neither, it doesn't expose its battery over
+Bluetooth, and macOS has no API to ask it directly. A Shortcut running on the device
+itself, saving to iCloud Drive on a schedule, is the only way to get that number onto
+the Mac.
+
 **Apple Watch is temporarily disabled** (hidden via `config.json`'s `hide`), its pushed reading's `updated_at` field isn't populating correctly yet. Remove it from `hide` and add it back to `expect` once that's sorted out.
 
 Anything that pushes a `*.json` file into `iCloud Drive/device-battery/` shows up
@@ -82,6 +89,11 @@ a connected AirPod (address, battery levels, firmware, serials, RSSI, services, 
 and not one of them is a charging flag. So `plugged_in` is `true`/`false` for the Mac and
 `null` everywhere else.
 
+iOS itself does know this, the Bluetooth battery widget puts a lightning bolt next to
+whichever AirPod is charging in the case. That's carried over Apple's private AirPods
+protocol straight to the iPhone, though, it never reaches `system_profiler`, so there's
+nothing for this Mac-side script to read.
+
 `null` means unknown, and the UI shows nothing for it. Do not "improve" this by rendering
 null as unplugged, that would state a fact nobody has. A bud sitting in the case charging
 does not report at all, it simply vanishes from the list.
@@ -90,11 +102,12 @@ The AirPods case level only appears while the case is open and connected.
 
 ## Config
 
-`config.json` controls device naming and visibility. It's optional, common devices already get
-sensible names with no config at all: anything with "iphone", "ipad", "apple watch", or "airpods"
-in its raw name is recognized and renamed automatically (see `default_display_name()` in
-`battery.py`). Copy `config.example.json` to `config.json` only once you want to override a
-default, name something the built-in list doesn't cover, hide a device, or use `expect`:
+`config.json` controls device naming, visibility, and order. It's optional, common devices
+already get sensible names with no config at all: anything with "iphone", "ipad", "apple watch",
+or "airpods" in its raw name is recognized and renamed automatically (see `default_display_name()`
+in `battery.py`). Copy `config.example.json` to `config.json` only once you want to override a
+default, name something the built-in list doesn't cover, hide a device, reorder rows, or use
+`expect`:
 
 ```bash
 cp config.example.json config.json
@@ -105,12 +118,13 @@ cp config.example.json config.json
 - `hide`: Device names to exclude from the list entirely (uses raw names detected by the system)
 - `rename`: Map raw device names to display names (left side is raw, right side is what you’ll see). Wins over the built-in default for that raw name, if there is one.
 - `expect`: Devices that should always have a row, even when offline (uses display names after rename/defaults)
+- `order`: Row order, listed as display names. Independent of `expect`, a device can get a fixed position without being forced to show a `not reporting` placeholder when offline. Falls back to `expect`'s order when omitted.
 
-Anything not listed in `hide` or `expect` still shows up automatically, so a new Bluetooth device appears without editing this file.
+Anything not listed in `hide`, `expect`, or `order` still shows up automatically, so a new Bluetooth device appears without editing this file, just at the end of the list.
 
 Without `expect`, devices that stop reporting disappear entirely. With it, they show a dimmed row reading `not reporting`.
 
-Names in `expect` must match the display names (after `rename`/defaults are applied). Names in `hide` and the left side of `rename` are the raw names macOS reports.
+Names in `expect` and `order` must match the display names (after `rename`/defaults are applied). Names in `hide` and the left side of `rename` are the raw names macOS reports.
 
 Run `python3 battery.py --json` to see the exact raw names detected by your system.
 

@@ -2,10 +2,14 @@
 
 Template documentation for Shortcut configuration. Copy and customize for your device names and schedule.
 
-Bracketed items in the Text action below (`[Battery Level]`, `[Get Battery Level]`,
+Bracketed items in the Text action below (`[Battery Level]`, `[is Charging]`,
 `[Formatted Date]`) are Shortcuts variables, not literal text. Insert them by tapping
 "Select Variable" in the Text action and picking the matching action's output, typing
 the brackets by hand will not work.
+
+`is Charging` isn't a separate action, it's one of the Detail options inside the same
+`Get Battery Level` action. Step 2 below is the same action as step 1, just with
+`is Charging` picked from that dropdown instead of `Battery Level`.
 
 The times you pick for the **Automations** below are arbitrary, set whatever schedule
 fits. Since a Time of Day automation only fires once at its set time, more automations

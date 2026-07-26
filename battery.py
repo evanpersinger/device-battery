@@ -78,6 +78,11 @@ class Config:
     # A source that stops reporting drops the device entirely, so without this
     # there is nothing left to gray out, the name goes too.
     expect: list[str] = field(default_factory=list)
+    # Row order, named as they appear after rename. Independent of `expect`,
+    # so a device can get a fixed position without also being forced to show
+    # a "not reporting" placeholder when it's offline. Falls back to `expect`'s
+    # order when empty, so existing configs keep behaving the same.
+    order: list[str] = field(default_factory=list)
     # Overrides icloud_root() when set, so a Shortcut can push into Google
     # Drive/Dropbox/etc. instead. Still joined with PUSHED_FOLDER_NAME, same as
     # the iCloud path.
@@ -337,6 +342,7 @@ def load_config(path: Path) -> Config:
         hide=list(data.get("hide", [])),
         rename=dict(data.get("rename", {})),
         expect=list(data.get("expect", [])),
+        order=list(data.get("order", [])),
         pushed_folder=pushed_folder if isinstance(pushed_folder, str) else None,
     )
 
@@ -466,7 +472,7 @@ def fill_missing(
 
 
 def order_devices(devices: list[Device], config: Config) -> list[Device]:
-    """Give every device in `expect` a fixed position, live or not.
+    """Give every device in `order` (or `expect`, if `order` is unset) a fixed position.
 
     Without this, a device's row jumps around as it starts and stops
     reporting, since a live reading lands wherever its source happened to put
@@ -474,12 +480,16 @@ def order_devices(devices: list[Device], config: Config) -> list[Device]:
     visible with the AirPods Case, which used to hop position every time the
     lid opened or shut.
 
-    Devices not in `expect` are unaffected: sorted() is stable, so they keep
-    their original relative order, just placed after every expected device.
+    `order` lets a device get a fixed position without also being in `expect`,
+    so it isn't forced to show a "not reporting" placeholder when offline.
+    Devices in neither list are unaffected: sorted() is stable, so they keep
+    their original relative order, just placed after every positioned device.
     """
+    positions = config.order or config.expect
+
     def rank(device: Device) -> tuple[int, int]:
         try:
-            return (0, config.expect.index(device.name))
+            return (0, positions.index(device.name))
         except ValueError:
             return (1, 0)
 

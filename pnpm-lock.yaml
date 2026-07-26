@@ -39,9 +39,6 @@ importers:
       vite-plugin-electron:
         specifier: ^1.1.0
         version: 1.1.0(vite-plugin-electron-renderer@1.0.0)
-      vite-plugin-electron-renderer:
-        specifier: ^1.0.0
-        version: 1.0.0
       vite-plugin-svgr:
         specifier: ^5.2.0
         version: 5.2.0(typescript@7.0.2)(vite@8.1.5(@types/node@26.1.1))
@@ -1607,7 +1604,8 @@ snapshots:
       escalade: 3.2.0
       picocolors: 1.1.1
 
-  vite-plugin-electron-renderer@1.0.0: {}
+  vite-plugin-electron-renderer@1.0.0:
+    optional: true
 
   vite-plugin-electron@1.1.0(vite-plugin-electron-renderer@1.0.0):
     dependencies:
