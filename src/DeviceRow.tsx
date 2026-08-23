@@ -48,7 +48,6 @@ export function DeviceRow({ device }: { device: Device }) {
   }
 
   const color = levelColor(device.percent);
-  const note = [device.status, device.age].filter(Boolean).join(", ");
 
   return (
     <div className="row">
@@ -68,7 +67,7 @@ export function DeviceRow({ device }: { device: Device }) {
           style={{ width: `${device.percent}%`, background: color }}
         />
       </div>
-      {note ? <div className="row-note">{note}</div> : null}
+      {device.age ? <div className="row-note">{device.age}</div> : null}
     </div>
   );
 }

@@ -59,7 +59,6 @@ class Device:
     """One battery reading, or one failed attempt at getting a reading."""
     name: str
     percent: int | None = None
-    status: str = ""
     source: str = ""
     updated_at: datetime | None = None
     error: str | None = None
@@ -374,7 +373,6 @@ def device_to_cache_entry(device: Device) -> dict:
     """Serialize a live reading for storage in the cache."""
     return {
         "percent": device.percent,
-        "status": device.status,
         "source": device.source,
         "updated_at": (device.updated_at or datetime.now()).isoformat(),
         "plugged_in": device.plugged_in,
@@ -390,7 +388,6 @@ def cache_entry_to_device(name: str, entry: dict) -> Device:
     return Device(
         name=name,
         percent=entry.get("percent"),
-        status=entry.get("status") or "",
         source="cached",
         updated_at=parse_timestamp(entry.get("updated_at")),
         plugged_in=entry.get("plugged_in"),
@@ -541,8 +538,8 @@ def render(devices: list[Device], use_color: bool) -> str:
         bar = paint(render_bar(device.percent), level_color(device.percent))
         level = f"{device.percent}%".rjust(4)
 
-        notes = [note for note in (device.status, describe_age(device.updated_at)) if note]
-        suffix = f"  {paint(', '.join(notes), DIM)}" if notes else ""
+        age = describe_age(device.updated_at)
+        suffix = f"  {paint(age, DIM)}" if age else ""
         lines.append(f"{name}  {bar} {level}{suffix}")
 
     return "\n".join(lines)
@@ -554,7 +551,6 @@ def to_json(devices: list[Device]) -> str:
         {
             "name": device.name,
             "percent": device.percent,
-            "status": device.status,
             "source": device.source,
             "updated_at": device.updated_at.isoformat() if device.updated_at else None,
             "age": describe_age(device.updated_at),

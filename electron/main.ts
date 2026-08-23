@@ -13,6 +13,9 @@ const POLL_TIMEOUT_MS = 20_000;
 
 let window: BrowserWindow | null = null;
 let timer: NodeJS.Timeout | null = null;
+// Resolved once in createWindow, not per poll. resolvePython needs app.getPath,
+// which is only valid once the app is ready, so this cannot be a top-level const.
+let pythonPath = "python3";
 
 /**
  * Find a usable python3.
@@ -35,7 +38,7 @@ function resolvePython(): string {
 /** Run battery.py once and push the result to the renderer. */
 function poll(): void {
   execFile(
-    resolvePython(),
+    pythonPath,
     [scriptPath, "--json"],
     { timeout: POLL_TIMEOUT_MS },
     (error, stdout) => {
@@ -68,6 +71,8 @@ function poll(): void {
 }
 
 function createWindow(): void {
+  pythonPath = resolvePython();
+
   window = new BrowserWindow({
     width: 320,
     height: 420,
@@ -103,8 +108,4 @@ void app.whenReady().then(createWindow);
 
 app.on("window-all-closed", () => {
   app.quit();
-});
-
-app.on("activate", () => {
-  if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });

@@ -7,7 +7,6 @@
 export interface Device {
   name: string;
   percent: number | null;
-  status: string;
   source: string;
   updated_at: string | null;
   /** Relative age like "12m ago", already prefixed "stale," when old. Empty if unknown. */
