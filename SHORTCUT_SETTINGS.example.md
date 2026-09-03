@@ -28,19 +28,21 @@ Create one Shortcut per device (e.g., "iPhone Battery", "Apple Watch Battery", "
    - Enable "Include ISO 8601 time"
 4. Text:
    ```
-   {"name": "Device Name", "percent": [Battery Level], "plugged_in": [Get Battery Level], "updated_at": "[Formatted Date]"}
+   {"name": "Device Name", "percent": [Battery Level], "plugged_in": "[Get Battery Level]", "updated_at": "[Formatted Date]"}
    ```
    Replace `"Device Name"` with your device name (must match the name in `config.json`)
 
    **Formatting rules (critical):**
    - `"percent": [Battery Level]` — NO quotes around the variable (must output a number)
-   - `"plugged_in": [Get Battery Level]` — NO quotes around this variable either (outputs a string like "Yes" or "No" on its own)
+   - `"plugged_in": "[Get Battery Level]"` — quotes around this one, the variable outputs a
+     bare word like `Yes` or `No`, which is not valid JSON unquoted
    - `"updated_at": "[Formatted Date]"` — the outer quotes are literal text in the JSON, insert the variable inside them
 
 5. Save Text
    - **Destination: iCloud Drive** (not "Shortcuts" — tap the dropdown to change it)
    - Subpath: `device-battery`
-   - Filename: `device-name.json` (e.g., `iphone.json`, `watch.json`, `ipad.json`)
+   - Filename: `device-name.txt` (e.g., `iphone.txt`, `watch.txt`, `ipad.txt`)
+     Both `.json` and `.txt` are read; Shortcuts' Save action tends to produce `.txt`
    - Ask Where to Save: OFF
    - Overwrite If File Exists: ON
 
@@ -60,4 +62,5 @@ Verify with:
 python3 -c "import battery; print(battery.icloud_root())"
 ```
 
-Should print a path ending in `com~apple~CloudDocs`.
+Should print a path ending in `com~apple~CloudDocs`. `None` means iCloud Drive is not
+syncing.

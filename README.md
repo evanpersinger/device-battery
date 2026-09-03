@@ -45,7 +45,7 @@ That is why `App.tsx` calls `window.battery.onReading(...)` rather than importin
 |---|---|---|
 | Mac | `pmset -g batt` | none |
 | AirPods, and any Bluetooth device reporting a battery | `system_profiler SPBluetoothDataType -json` | none |
-| iPhone, Apple Watch, iPad | a JSON file in iCloud Drive, written by an iOS/watchOS Shortcut | see `SHORTCUT_SETUP.md` |
+| iPhone, Apple Watch, iPad | a JSON file (`.json` or `.txt`) in iCloud Drive, written by an iOS/watchOS Shortcut | see `SHORTCUT_SETUP.md` |
 
 Each source is read independently. If one fails, that row shows the reason and everything
 else still renders.
@@ -61,8 +61,14 @@ the Mac.
 
 **Apple Watch is temporarily disabled** (hidden via `config.json`'s `hide`), its pushed reading's `updated_at` field isn't populating correctly yet. Remove it from `hide` and add it back to `expect` once that's sorted out.
 
-Anything that pushes a `*.json` file into `iCloud Drive/device-battery/` shows up
-automatically, so an iPad or Apple Watch is just another copy of the same Shortcut.
+The same `updated_at` problem affects the iPhone row, which is still shown. Both pushed
+files land with `"updated_at": ""`, so those rows show no age and can never be flagged
+`stale`, a reading that stopped updating looks exactly like a fresh one. The fix is on the
+Shortcut side, see the first gotcha in `SHORTCUT_SETUP.md`.
+
+Anything that pushes a `*.json` or `*.txt` file into `iCloud Drive/device-battery/` shows
+up automatically, so an iPad or Apple Watch is just another copy of the same Shortcut.
+The contents have to be JSON either way, the extension is not what matters.
 Readings older than 2 hours get flagged `stale` so a number that stopped updating never
 looks current.
 

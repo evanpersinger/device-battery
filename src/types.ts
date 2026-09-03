@@ -25,6 +25,4 @@ export interface Reading {
   devices: Device[];
   /** Set when battery.py itself failed to run, rather than a single device failing. */
   error: string | null;
-  /** ms since epoch, stamped when the poll completed. */
-  at: number;
 }

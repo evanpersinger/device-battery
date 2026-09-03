@@ -48,7 +48,6 @@ function poll(): void {
         window.webContents.send("reading", {
           devices: [],
           error: error.message,
-          at: Date.now(),
         });
         return;
       }
@@ -57,13 +56,11 @@ function poll(): void {
         window.webContents.send("reading", {
           devices: JSON.parse(stdout),
           error: null,
-          at: Date.now(),
         });
       } catch {
         window.webContents.send("reading", {
           devices: [],
           error: "battery.py returned output that is not valid JSON",
-          at: Date.now(),
         });
       }
     },

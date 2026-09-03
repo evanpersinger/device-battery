@@ -1,4 +1,3 @@
-
 """Show battery levels for the Mac and every connected device in one view.
 
 Reads three sources, each independently:
@@ -14,8 +13,8 @@ import argparse # parsing command-line flags
 import json # converting python objects and JSON text
 import re # regular expressions module
 import subprocess # used for letting python run external commands
-import sys 
-from dataclasses import dataclass, field 
+import sys
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -25,9 +24,9 @@ PUSHED_FOLDER_NAME = "device-battery"
 STALE_AFTER = timedelta(hours=2)
 COMMAND_TIMEOUT = 15
 
-# Absolute paths, because launchers like Ubersicht run commands without a login
-# shell's PATH. /usr/sbin in particular is missing from bash's fallback PATH,
-# which silently breaks the system_profiler call.
+# Absolute paths, because Electron launches this without a login shell's PATH.
+# /usr/sbin in particular is missing from bash's fallback PATH, which silently
+# breaks the system_profiler call.
 # Unlike electron/main.ts's resolvePython(), this isn't a search across
 # candidates, it's a plain constant: Apple ships both binaries at these exact
 # paths on every Mac, there is nothing to search for.
@@ -43,7 +42,7 @@ BT_BATTERY_FIELDS = {
     "device_batteryLevel": "",
 }
 
-# colors used for UI
+# ANSI colors for the terminal frontend.
 GREEN = "\033[32m"
 YELLOW = "\033[33m"
 RED = "\033[31m"
@@ -53,6 +52,7 @@ RESET = "\033[0m"
 
 class CommandError(Exception):
     """A shell command failed or was unavailable."""
+
 
 @dataclass
 class Device:
@@ -212,29 +212,24 @@ def bluetooth_devices(name: str, info: dict) -> list[Device]:
 
 
 def icloud_root() -> Path | None:
-    """Locate iCloud Drive, checking both the classic and CloudStorage paths.
+    """Locate a live iCloud Drive, checking the classic and CloudStorage paths.
 
-    A dead archive left behind when Drive is switched off always carries a
-    "(<timestamp>)" suffix in its folder name, unlike a live folder.
-    read_pushed_devices() checks for that same suffix to tell "Drive is off"
-    apart from "Drive is on but empty" instead of getting an empty result either way.
+    macOS leaves timestamped copies like "iCloudDrive-iCloudDrive (2024-10-12
+    11:17 AM)" behind when iCloud Drive is switched off. Those are archives, not
+    a live folder, so they are skipped and callers get None: Drive being off and
+    Drive being absent are the same problem from here.
     """
-    classic = Path.home() / "Library" / "Mobile Documents" / "com~apple~CloudDocs"
+    home = Path.home()
+    classic = home / "Library" / "Mobile Documents" / "com~apple~CloudDocs"
     if classic.is_dir():
         return classic
 
-    cloud_storage = Path.home() / "Library" / "CloudStorage"
-    if not cloud_storage.is_dir():
-        return None
-
-    # macOS leaves timestamped copies like "iCloudDrive-iCloudDrive (2024-10-12
-    # 11:17 AM)" behind when iCloud Drive is switched off. Those are archives,
-    # not the live folder, so only fall back to one if nothing else exists.
-    candidates = [path for path in cloud_storage.glob("iCloudDrive*") if path.is_dir()]
-    live = [path for path in candidates if "(" not in path.name]
-    for path in sorted(live) or sorted(candidates):
-        return path
-    return None
+    live = [
+        path
+        for path in home.glob("Library/CloudStorage/iCloudDrive*")
+        if path.is_dir() and "(" not in path.name
+    ]
+    return min(live, default=None)
 
 
 def read_pushed_devices(config: Config) -> list[Device]:
@@ -243,17 +238,15 @@ def read_pushed_devices(config: Config) -> list[Device]:
         root = Path(config.pushed_folder).expanduser()
     else:
         root = icloud_root()
-        if root is None or "(" in root.name:
+        if root is None:
             return [Device(name="iCloud Drive", source="pushed", error="iCloud Drive is not syncing")]
 
     folder = root / PUSHED_FOLDER_NAME
     if not folder.is_dir():
         return []
 
-    devices: list[Device] = []
-    for path in sorted(list(folder.glob("*.json")) + list(folder.glob("*.txt"))):
-        devices.append(pushed_device(path))
-    return devices
+    pushed = sorted(list(folder.glob("*.json")) + list(folder.glob("*.txt")))
+    return [pushed_device(path) for path in pushed]
 
 
 def pushed_device(path: Path) -> Device:
@@ -448,10 +441,10 @@ def fill_missing(
     """Fill in every expected device that did not report this run.
 
     Runs after apply_config, so the names compared here are the renamed ones a
-    user actually sees. A device with a cached last-known reading falls back
-    to that (existing staleness logic then labels it "stale"). A
-    device that has never once reported still gets a plain "not reporting"
-    row, there is nothing to fall back to.
+    user actually sees. A device with a cached last-known reading falls back to
+    that (existing staleness logic then labels it "stale"). A device that has
+    never once reported still gets a plain "not reporting" row, there is
+    nothing to fall back to.
     """
     present = {device.name for device in devices}
     missing = [name for name in config.expect if name not in present]
@@ -507,8 +500,9 @@ def level_color(percent: int) -> str:
     return GREEN
 
 
-def render_bar(percent: int, width: int = 10) -> str:
+def render_bar(percent: int) -> str:
     """Draw a proportional bar for a battery level."""
+    width = 10
     filled = max(0, min(width, round(percent / 100 * width)))
     return "█" * filled + "░" * (width - filled)
 
@@ -575,9 +569,9 @@ def main() -> int:
 
     config = load_config(CONFIG_PATH)
     cache = load_cache()
-    devices = order_devices(
-        fill_missing(apply_config(collect_devices(config), config), config, cache), config
-    )
+    devices = apply_config(collect_devices(config), config)
+    devices = fill_missing(devices, config, cache)
+    devices = order_devices(devices, config)
 
     for device in devices:
         if device.percent is not None and device.source != "cached":

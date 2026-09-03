@@ -21,9 +21,10 @@ Verify it worked, this should print a path ending in `com~apple~CloudDocs`:
 python3 -c "import battery; print(battery.icloud_root())"
 ```
 
-If it still prints a path ending in something like `(2024-10-12 11:17 AM)`, iCloud Drive
-hasn't finished setting up. That folder is a leftover archive from when iCloud Drive was
-last switched off, not a live sync folder. Wait a minute and check again.
+If it prints `None`, iCloud Drive isn't syncing yet. Either it hasn't finished setting up,
+or the only folder present is a leftover archive from when iCloud Drive was last switched
+off. Those archives carry a `(2024-10-12 11:17 AM)` style timestamp in the folder name and
+are skipped deliberately, they are not live sync folders. Wait a minute and check again.
 
 ### Create the device-battery folder
 
@@ -78,10 +79,11 @@ Shortcuts app > Shortcuts tab > `+` to create a new shortcut. Name it something 
 
    The variables must be inserted as tokens/pills (colored elements), not typed as literal text. Tap "Select Variable" next to each bracketed item and choose the corresponding action output.
 
-   The `updated_at` timestamp is used to show how long ago the reading was taken (e.g. "4 min ago") and to flag readings older than 2 hours as `stale`.
+   The `updated_at` timestamp is used to show how long ago the reading was taken (e.g. "4m ago") and to flag readings older than 2 hours as `stale`.
 
 5. **Save Text** to iCloud Drive
    - Destination: iCloud Drive, folder `device-battery`, filename `iphone.json`
+     (Shortcuts often saves it as `iphone.txt` instead; both extensions are read)
    - Turn **off** "Ask Where to Save"
    - Turn **on** "Overwrite If File Exists"
 
@@ -133,10 +135,10 @@ gets flagged as `stale`, so a number that stopped updating never looks current.
   multiplying Battery Level by 100.
 - **Hourly is the floor.** iOS won't run personal automations more often than that
   reliably, and it may skip runs in Low Power Mode.
-- **Adding more devices is free.** The script reads every `*.json` in the
+- **Adding more devices is free.** The script reads every `*.json` and `*.txt` in the
   `device-battery` folder, so the same recipe on an iPad or Apple Watch (saving to
-  `ipad.json`, `watch.json`) just works. The `name` field in the JSON is what gets
-  displayed.
+  `ipad.txt`, `watch.txt`) just works. The contents have to be JSON either way, the
+  extension is not what matters. The `name` field in the JSON is what gets displayed.
 
 ## What this still won't fix
 
