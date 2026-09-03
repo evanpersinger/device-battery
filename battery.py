@@ -314,16 +314,13 @@ def describe_age(moment: datetime | None) -> str:
     delta = datetime.now() - moment
     if delta < timedelta(0):
         return "clock skew"
+    if delta > STALE_AFTER:
+        return "stale"
 
     minutes = int(delta.total_seconds() // 60)
     if minutes < 60:
-        age = f"{minutes}m ago"
-    elif minutes < 60 * 24:
-        age = f"{minutes // 60}h ago"
-    else:
-        age = f"{minutes // (60 * 24)}d ago"
-
-    return f"stale, {age}" if delta > STALE_AFTER else age
+        return f"{minutes}m ago"
+    return f"{minutes // 60}h ago"
 
 
 def load_config(path: Path) -> Config:
@@ -452,7 +449,7 @@ def fill_missing(
 
     Runs after apply_config, so the names compared here are the renamed ones a
     user actually sees. A device with a cached last-known reading falls back
-    to that (existing staleness logic then labels it "stale, ...ago"). A
+    to that (existing staleness logic then labels it "stale"). A
     device that has never once reported still gets a plain "not reporting"
     row, there is nothing to fall back to.
     """

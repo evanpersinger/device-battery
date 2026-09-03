@@ -9,7 +9,7 @@ export interface Device {
   percent: number | null;
   source: string;
   updated_at: string | null;
-  /** Relative age like "12m ago", already prefixed "stale," when old. Empty if unknown. */
+  /** Relative age like "12m ago", just "stale" when old. Empty if unknown. */
   age: string;
   /**
    * null means unknown, not "not plugged in". Only the Mac reports this.
