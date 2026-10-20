@@ -11,6 +11,7 @@ Any source failing degrades to a single error row rather than killing the view.
 from __future__ import annotations # newer type-hint syntax
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -369,10 +370,14 @@ def load_cache() -> dict[str, dict]:
 
 def save_cache(cache: dict[str, dict]) -> None:
     """Persist the cache, best-effort. A failed write should not break a poll."""
+    # Per-process temp name: overlapping polls are separate processes, and a
+    # shared name would let one replace() move the other's half-written file.
+    tmp = CACHE_PATH.with_name(f"{CACHE_PATH.name}.{os.getpid()}.tmp")
     try:
-        CACHE_PATH.write_text(json.dumps(cache, indent=2))
+        tmp.write_text(json.dumps(cache, indent=2))
+        tmp.replace(CACHE_PATH)
     except OSError:
-        pass
+        tmp.unlink(missing_ok=True)
 
 
 def device_to_cache_entry(device: Device) -> dict:
