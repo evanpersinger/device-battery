@@ -9,10 +9,10 @@ Any source failing degrades to a single error row rather than killing the view.
 """
 
 from __future__ import annotations # newer type-hint syntax
-import argparse # parsing command-line flags
-import json # converting python objects and JSON text
-import re # regular expressions module
-import subprocess # used for letting python run external commands
+import argparse
+import json
+import re
+import subprocess
 import sys
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
@@ -556,7 +556,7 @@ def render(devices: list[Device], use_color: bool) -> str:
 
 
 def to_json(devices: list[Device]) -> str:
-    """Serialize readings for machine consumption, e.g. a menu bar frontend."""
+    """Serialize readings for machine consumption, e.g. the Electron app."""
     payload = [
         {
             "name": device.name,
