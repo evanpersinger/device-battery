@@ -319,8 +319,18 @@ def describe_age(moment: datetime | None) -> str:
     return f"{minutes // 60}h ago"
 
 
+def str_list(raw: object) -> list[str]:
+    """A list of strings, or an empty list if raw is anything else."""
+    if isinstance(raw, list) and all(isinstance(item, str) for item in raw):
+        return raw
+    return []
+
+
 def load_config(path: Path) -> Config:
-    """Load config, falling back to showing everything if it's missing or bad."""
+    """Load config, falling back to showing everything if it's missing or bad.
+
+    A field with the wrong type is ignored on its own, the rest still apply.
+    """
     if not path.is_file():
         return Config()
     try:
@@ -329,12 +339,15 @@ def load_config(path: Path) -> Config:
         return Config()
     if not isinstance(data, dict):
         return Config()
+    rename = data.get("rename")
+    if not (isinstance(rename, dict) and all(isinstance(v, str) for v in rename.values())):
+        rename = {}
     pushed_folder = data.get("pushed_folder")
     return Config(
-        hide=list(data.get("hide", [])),
-        rename=dict(data.get("rename", {})),
-        expect=list(data.get("expect", [])),
-        order=list(data.get("order", [])),
+        hide=str_list(data.get("hide")),
+        rename=rename,
+        expect=str_list(data.get("expect")),
+        order=str_list(data.get("order")),
         pushed_folder=pushed_folder if isinstance(pushed_folder, str) else None,
     )
 

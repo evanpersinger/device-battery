@@ -135,7 +135,7 @@ Names in `expect` and `order` must match the display names (after `rename`/defau
 
 Run `python3 battery.py --json` to see the exact raw names detected by your system.
 
-If the file is missing or malformed, everything shows with its raw name.
+If the file is missing or malformed, everything shows with its raw name. A field with the wrong type (say `"hide": "iPhone"` instead of a list) is ignored on its own.
 
 ## Files
 
