@@ -112,6 +112,7 @@ def parse_percent(raw: str | int | float | None) -> int | None:
 
     A float strictly between 0 and 1 is treated as a fraction and scaled up,
     because Shortcuts' "Get Battery Level" returns one on some iOS versions.
+    A string gets the same rule unless it has a '%', so '0.7' is 70 but '0.7%' is 1.
     Integers are never scaled: 1 means one percent, not one hundred.
     """
     if raw is None or isinstance(raw, bool):
@@ -126,6 +127,8 @@ def parse_percent(raw: str | int | float | None) -> int | None:
         if match is None:
             return None
         value = float(match.group(0))
+        if "%" not in raw and 0 < value < 1:
+            value *= 100
     else:
         return None
 
