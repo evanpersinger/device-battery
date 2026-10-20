@@ -1,4 +1,4 @@
-# device_battery
+# device-battery
 
 A small desktop app showing the battery level of every device I own, instead of checking
 each one separately.
@@ -125,6 +125,7 @@ cp config.example.json config.json
 - `rename`: Map raw device names to display names (left side is raw, right side is what you’ll see). Wins over the built-in default for that raw name, if there is one.
 - `expect`: Devices that should always have a row, even when offline (uses display names after rename/defaults)
 - `order`: Row order, listed as display names. Independent of `expect`, a device can get a fixed position without being forced to show a `not reporting` placeholder when offline. Falls back to `expect`'s order when omitted.
+- `pushed_folder`: Read pushed device files from this folder instead of iCloud Drive, for a Shortcut that saves to Google Drive or Dropbox. The `device-battery` subfolder is still added to it. `null` or omitted uses iCloud Drive.
 
 Anything not listed in `hide`, `expect`, or `order` still shows up automatically, so a new Bluetooth device appears without editing this file, just at the end of the list.
 
@@ -145,14 +146,22 @@ If the file is missing or malformed, everything shows with its raw name.
 | `electron/preload.ts` | the only bridge between Node and the UI |
 | `src/App.tsx` | layout and reading state |
 | `src/DeviceRow.tsx` | one device: icon, name, percent, bar |
-| `src/DeviceIcon.tsx` | inline SVG icons, picked by device name |
+| `src/DeviceIcon.tsx` | picks an icon by device name: SVG files for the AirPods, hand-drawn strokes for the rest |
+| `src/icons/` | SVG artwork for the AirPods and the case |
 | `src/types.ts` | `Device` and `Reading`, mirrors the Python JSON |
+| `vite.config.ts` | dev server on port 3007, the Electron plugin, and the SVG-to-component setup |
+| `config.example.json` | template to copy to `config.json` |
 | `config.json` | device naming and visibility |
 | `SHORTCUT_SETUP.md` | iOS Shortcut setup instructions |
 | `SHORTCUT_SETTINGS.example.md` | template for keeping track of each device's Shortcut configuration |
 
 ## Possible next steps
 
-- Real artwork instead of the inline SVGs in `DeviceIcon.tsx`
+- Real artwork for the Mac, iPhone and Watch icons. The AirPods already use SVG files in
+  `src/icons/`, the rest are still hand-drawn strokes in `DeviceIcon.tsx`
 - History over time. `.battery_cache.json` only keeps the last known reading per device
   for offline fallback, a real history would need its own storage
+
+## License
+
+MIT
