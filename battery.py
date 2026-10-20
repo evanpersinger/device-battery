@@ -424,16 +424,19 @@ def apply_config(devices: list[Device], config: Config) -> list[Device]:
     config.rename always wins when present. Otherwise default_display_name()
     is tried, so a fresh install still shows friendly names with no config at
     all. Failing both, the raw name is kept as-is.
+
+    config.hide matches either the raw name or the display name.
     """
     kept: list[Device] = []
     for device in devices:
-        if device.name in config.hide:
-            continue
-        device.name = (
+        display = (
             config.rename.get(device.name)
             or default_display_name(device.name)
             or device.name
         )
+        if device.name in config.hide or display in config.hide:
+            continue
+        device.name = display
         kept.append(device)
     return kept
 

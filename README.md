@@ -121,7 +121,7 @@ cp config.example.json config.json
 
 **Fields:**
 
-- `hide`: Device names to exclude from the list entirely (uses raw names detected by the system)
+- `hide`: Device names to exclude from the list entirely (matches either the raw name detected by the system or the display name after rename/defaults)
 - `rename`: Map raw device names to display names (left side is raw, right side is what you’ll see). Wins over the built-in default for that raw name, if there is one.
 - `expect`: Devices that should always have a row, even when offline (uses display names after rename/defaults)
 - `order`: Row order, listed as display names. Independent of `expect`, a device can get a fixed position without being forced to show a `not reporting` placeholder when offline. Falls back to `expect`'s order when omitted.
@@ -131,7 +131,7 @@ Anything not listed in `hide`, `expect`, or `order` still shows up automatically
 
 Without `expect`, devices that stop reporting disappear entirely. With it, they show a dimmed row reading `not reporting`.
 
-Names in `expect` and `order` must match the display names (after `rename`/defaults are applied). Names in `hide` and the left side of `rename` are the raw names macOS reports.
+Names in `expect` and `order` must match the display names (after `rename`/defaults are applied). The left side of `rename` is the raw name macOS reports (the Mac's is always `Mac`). Names in `hide` can be either.
 
 Run `python3 battery.py --json` to see the exact raw names detected by your system.
 
