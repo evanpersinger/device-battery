@@ -13,6 +13,9 @@ const POLL_TIMEOUT_MS = 20_000;
 
 let window: BrowserWindow | null = null;
 let timer: NodeJS.Timeout | null = null;
+// True while a battery.py run is in flight. Without it, a slow run overlaps the
+// next tick and several python processes pile up.
+let polling = false;
 // Resolved once in createWindow, not per poll. resolvePython needs app.getPath,
 // which is only valid once the app is ready, so this cannot be a top-level const.
 let pythonPath = "python3";
@@ -37,11 +40,15 @@ function resolvePython(): string {
 
 /** Run battery.py once and push the result to the renderer. */
 function poll(): void {
+  if (polling) return;
+  polling = true;
+
   execFile(
     pythonPath,
     [scriptPath, "--json"],
     { timeout: POLL_TIMEOUT_MS },
     (error, stdout) => {
+      polling = false;
       if (!window || window.isDestroyed()) return;
 
       if (error) {
