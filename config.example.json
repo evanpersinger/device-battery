@@ -1,10 +1,10 @@
 {
-  "_comment": "Copy this file to config.json and customize for your devices. hide: exact device names to exclude. rename: map raw device names (as reported by the system) to display names. expect: devices that always get a row (grayed out when offline), using display names after rename is applied. order: row order, using display names, independent of expect. Falls back to expect's order when omitted. pushed_folder: overrides where pushed device JSON/txt files are read from, falls back to iCloud Drive when unset (null).",
+  "_comment": "Copy this file to config.json and customize for your devices. hide: exact device names to exclude. rename: map raw device names (as reported by the system) to display names. The Mac's raw name is always \"Mac\". expect: devices that always get a row (grayed out when offline), using display names after rename is applied. order: row order, using display names, independent of expect. Falls back to expect's order when omitted. pushed_folder: overrides where pushed device JSON/txt files are read from, falls back to iCloud Drive when unset (null).",
   "hide": [],
   "expect": ["MacBook Pro", "Left AirPod", "Right AirPod", "AirPods Case", "iPhone", "Apple Watch", "iPad"],
   "order": ["MacBook Pro", "Left AirPod", "Right AirPod", "AirPods Case", "iPhone", "Apple Watch", "iPad"],
   "rename": {
-    "Your Mac Name": "MacBook Pro",
+    "Mac": "MacBook Pro",
     "iphone": "iPhone",
     "Your AirPods L": "Left AirPod",
     "Your AirPods R": "Right AirPod",
