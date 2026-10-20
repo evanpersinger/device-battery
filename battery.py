@@ -595,7 +595,10 @@ def main() -> int:
     for device in devices:
         if device.percent is not None and device.source != "cached":
             cache[device.name] = device_to_cache_entry(device)
-    save_cache(cache)
+    # fill_missing gives every `expect` name a row, so this keeps all of those
+    # and drops keys left behind by a rename.
+    names = {device.name for device in devices}
+    save_cache({name: entry for name, entry in cache.items() if name in names})
 
     if args.json:
         print(to_json(devices))
